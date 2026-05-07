@@ -69,5 +69,14 @@ BetaList, FoundrList, Microlaunch, There's An AI For That, Toolify.ai, Futureped
 
 ## Implementation notes
 
-- v1: ship the orchestration + browser-operator agent + 1 fully-tested directory (BetaList) as a reference. Other 14 directories are stubs in `submissions/` with clearly documented selectors and TODOs — fill them in as you encounter each one live.
-- Recording fixtures: capture a single successful submission via Playwright Codegen, store the selector list under `tests/playwright/fixtures/<directory>.json`.
+- v1.1 ships the orchestration + browser-operator agent + a public-page fixture recorder + hand-curated fixtures for **BetaList**, **FoundrList**, and **Indie Hackers** under `tests/playwright/fixtures/`. The other 12 directories are added on demand by running `launchkit fixtures record <slug> <submit-url>` and hand-editing the result.
+- The fixture recorder uses `@playwright/test`'s headless Chromium to inspect the **public** submit form, extracting input/textarea/select selectors and a likely submit-button selector. If the form is gated behind login (most are), the fixture lands as a one-field stub — the operator hand-edits it once based on the real authenticated form. The hand-edited fixtures for the 3 reference directories show this pattern.
+- `requiresAuth: true` on a fixture tells the runner to halt if the page rendered the login wall instead of the submit form.
+
+## CLI
+
+```bash
+launchkit fixtures record <directory-slug> <submit-url>
+```
+
+Inspects the public page, writes `tests/playwright/fixtures/<slug>.json`, and reports the field count + submit selector. Validate any fixture with the runtime schema via `validateFixtureFile` (used by tests).

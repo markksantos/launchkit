@@ -67,5 +67,15 @@ snapshot.
 
 ## Implementation notes for the engineer
 
-- v1 ships the Cloudflare API path and the documented-fallback path. Per-registrar Playwright recordings are deferred — captcha frequency makes them brittle.
+- v1.1 ships the real Cloudflare API client at `src/dns/cloudflare.ts` with a diff-and-add orchestrator at `src/dns/setup.ts`. Existing records are preserved; only missing records are created. `--dry-run` reports the plan without writing.
+- Token scopes required: **Zone → Read** + **DNS → Edit**. Generate at https://dash.cloudflare.com/profile/api-tokens.
+- Per-registrar Playwright recordings are deferred — captcha frequency makes them brittle.
 - Always use `dig +short @1.1.1.1` for verification to avoid ISP DNS caching.
+
+## CLI
+
+```bash
+launchkit domain setup <spec.json> [--out=<dir>] [--dry-run]
+```
+
+Reads `CLOUDFLARE_API_TOKEN` from `process.env`, then `.env`, `.env.local`, `.env.production`, `.env.production.local` in that order. Writes `dns-status.md` to `<out>` summarising desired vs existing vs created records and verification commands.

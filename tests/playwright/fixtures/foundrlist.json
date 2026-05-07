@@ -1,0 +1,82 @@
+{
+  "directory": "foundrlist",
+  "name": "FoundrList",
+  "submitUrl": "https://www.foundrlist.com/submit",
+  "requiresAuth": true,
+  "formFields": [
+    {
+      "source": "name",
+      "label": "Project Name",
+      "selectors": [
+        "input[name=\"projectName\"]",
+        "input[aria-label=\"Project Name\"]",
+        "input[placeholder*=\"Project name\" i]"
+      ]
+    },
+    {
+      "source": "domain",
+      "label": "Website",
+      "selectors": [
+        "input[name=\"website\"]",
+        "input[type=\"url\"]",
+        "input[placeholder*=\"website\" i]"
+      ]
+    },
+    {
+      "source": "tagline",
+      "label": "Tagline",
+      "selectors": [
+        "input[name=\"tagline\"]",
+        "input[aria-label=\"Tagline\"]"
+      ]
+    },
+    {
+      "source": "descriptionHundred",
+      "label": "Description",
+      "selectors": [
+        "textarea[name=\"description\"]",
+        "textarea[aria-label=\"Description\"]"
+      ],
+      "multiline": true
+    },
+    {
+      "source": "category",
+      "label": "Category",
+      "selectors": [
+        "select[name=\"category\"]",
+        "[role=\"combobox\"][aria-label*=\"category\" i]"
+      ]
+    },
+    {
+      "source": "founderName",
+      "label": "Founder Name",
+      "selectors": [
+        "input[name=\"founderName\"]",
+        "input[aria-label=\"Founder name\"]"
+      ]
+    },
+    {
+      "source": "founderEmail",
+      "label": "Email",
+      "selectors": [
+        "input[name=\"email\"]",
+        "input[type=\"email\"]"
+      ]
+    }
+  ],
+  "submitSelector": "button[type=\"submit\"]",
+  "successAssertions": [
+    "text=/submitted successfully/i",
+    "text=/thanks for submitting/i",
+    "text=/we'll review/i"
+  ],
+  "failureAssertions": [
+    { "kind": "captcha", "selector": "iframe[src*=\"recaptcha\"]", "message": "reCAPTCHA detected — halt." },
+    { "kind": "captcha", "selector": "iframe[src*=\"hcaptcha\"]", "message": "hCaptcha detected — halt." },
+    { "kind": "captcha", "selector": ".cf-turnstile", "message": "Cloudflare Turnstile detected — halt." },
+    { "kind": "login", "selector": "a[href*=\"/login\"], a[href*=\"/sign-in\"]", "message": "FoundrList login wall." },
+    { "kind": "rate-limit", "selector": "text=/too many submissions/i", "message": "FoundrList rate limited." }
+  ],
+  "approvalNote": "FoundrList review queue is typically 3–10 days. Free listing tier exists; verify email reaches the founder mailbox after submission.",
+  "recordedAt": "2026-05-07T00:00:00.000Z"
+}

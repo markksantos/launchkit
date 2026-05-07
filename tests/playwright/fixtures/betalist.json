@@ -1,0 +1,88 @@
+{
+  "directory": "betalist",
+  "name": "BetaList",
+  "submitUrl": "https://betalist.com/submit",
+  "requiresAuth": true,
+  "formFields": [
+    {
+      "source": "name",
+      "label": "Name",
+      "selectors": [
+        "#startup_name",
+        "input[name=\"startup[name]\"]",
+        "input[aria-label=\"Name\"]",
+        "input[placeholder=\"Name\"]"
+      ]
+    },
+    {
+      "source": "domain",
+      "label": "URL",
+      "selectors": [
+        "#startup_url",
+        "input[name=\"startup[url]\"]",
+        "input[type=\"url\"]"
+      ]
+    },
+    {
+      "source": "tagline",
+      "label": "Tagline",
+      "selectors": [
+        "#startup_tagline",
+        "input[name=\"startup[tagline]\"]",
+        "input[aria-label=\"Tagline\"]"
+      ]
+    },
+    {
+      "source": "descriptionTwoHundred",
+      "label": "Description",
+      "selectors": [
+        "#startup_description",
+        "textarea[name=\"startup[description]\"]"
+      ],
+      "multiline": true
+    },
+    {
+      "source": "category",
+      "label": "Category",
+      "selectors": [
+        "#startup_category_id",
+        "select[name=\"startup[category_id]\"]"
+      ]
+    },
+    {
+      "source": "founderEmail",
+      "label": "Email",
+      "selectors": [
+        "#user_email",
+        "input[name=\"user[email]\"]",
+        "input[type=\"email\"]"
+      ]
+    },
+    {
+      "source": "firstScreenshotPath",
+      "label": "Screenshot",
+      "selectors": [
+        "#startup_image",
+        "input[name=\"startup[image]\"]",
+        "input[type=\"file\"]"
+      ],
+      "optional": true
+    }
+  ],
+  "submitSelector": "button[type=\"submit\"]",
+  "successAssertions": [
+    "text=/thanks for your submission/i",
+    "text=/we'll let you know/i",
+    "text=/in our queue/i",
+    "text=/under review/i"
+  ],
+  "failureAssertions": [
+    { "kind": "captcha", "selector": "iframe[src*=\"recaptcha\"]", "message": "reCAPTCHA detected — halt." },
+    { "kind": "captcha", "selector": "iframe[src*=\"hcaptcha\"]", "message": "hCaptcha detected — halt." },
+    { "kind": "captcha", "selector": ".cf-turnstile", "message": "Cloudflare Turnstile detected — halt." },
+    { "kind": "login", "selector": "form[action*=\"/users/sign_in\"]", "message": "BetaList login wall — re-auth in your browser, then retry." },
+    { "kind": "rate-limit", "selector": "text=/too many requests|please slow down/i", "message": "BetaList rate limited." }
+  ],
+  "approvalNote": "BetaList runs a manual review queue. Approval typically takes 7–14 days. Free tier; paid 'fast track' option exists. Re-check the email used for submission.",
+  "recordedAt": "2026-05-07T00:00:00.000Z"
+}

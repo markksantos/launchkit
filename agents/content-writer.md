@@ -25,7 +25,7 @@ You write for humans. The output goes straight on a real person's social timelin
 ## Inputs
 
 - Validated `product-spec.json`.
-- Optional `--samples=<dir>` of past content (tweets, blog posts, LinkedIn updates) for tone-matching.
+- Optional `--samples=<dir>` of past content (`.md`, `.txt` files of tweets, blog posts, LinkedIn updates) for tone-matching. The analyser at `src/content/tone-analyzer.ts` extracts a `VoiceProfile` (contractions, first-person vs we-form, mean sentence length, emoji per 100 words, exclamation density, hashtags per post, semicolon usage). The drafts then run through `applyVoice()` which expands contractions for formal corpora, strips emoji when the corpus has none, and converts semicolons to periods when the corpus avoids them. No samples → neutral indie-hacker baseline.
 - The platform target (`x | linkedin | reddit-<sub> | hn | producthunt | blog | newsletter`).
 
 ## Outputs

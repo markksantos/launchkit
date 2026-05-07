@@ -19,7 +19,7 @@ You produce every piece of launch content the user will post on launch day, in h
 ## Inputs
 
 - Validated `product-spec.json`.
-- Optional: `--samples=<dir>` of past content for tone matching (e.g. user's prior tweets, blog posts).
+- Optional `--samples=<dir>` of past content for tone matching (`.md`, `.txt`). The analyser derives a voice profile (contractions, first-person vs we-form, sentence length, emoji density, exclamation density, hashtags, semicolons) and applies it to every draft. With no `--samples`, the generator uses the neutral indie-hacker baseline.
 
 ## Outputs (under `<outDir>/content/`)
 

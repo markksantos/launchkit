@@ -1,0 +1,42 @@
+{
+  "directory": "indiehackers",
+  "name": "Indie Hackers",
+  "submitUrl": "https://www.indiehackers.com/post/new",
+  "requiresAuth": true,
+  "formFields": [
+    {
+      "source": "name",
+      "label": "Title",
+      "selectors": [
+        "input[placeholder*=\"title\" i]",
+        "textarea[name=\"title\"]",
+        "input[name=\"title\"]"
+      ]
+    },
+    {
+      "source": "descriptionTwoHundred",
+      "label": "Body",
+      "selectors": [
+        "textarea[name=\"body\"]",
+        "[role=\"textbox\"][contenteditable=\"true\"]",
+        ".trix-content"
+      ],
+      "multiline": true
+    }
+  ],
+  "submitSelector": "button[type=\"submit\"], button:has-text(\"Post\"), button:has-text(\"Publish\")",
+  "successAssertions": [
+    "text=/your post is live/i",
+    "text=/posted/i",
+    "text=/published/i"
+  ],
+  "failureAssertions": [
+    { "kind": "captcha", "selector": "iframe[src*=\"recaptcha\"]", "message": "reCAPTCHA detected — halt." },
+    { "kind": "captcha", "selector": "iframe[src*=\"hcaptcha\"]", "message": "hCaptcha detected — halt." },
+    { "kind": "captcha", "selector": ".cf-turnstile", "message": "Cloudflare Turnstile detected — halt." },
+    { "kind": "login", "selector": "a[href*=\"/login\"], button:has-text(\"Sign in\")", "message": "Indie Hackers login wall — re-auth and retry." },
+    { "kind": "rate-limit", "selector": "text=/posting too quickly|rate limit/i", "message": "Indie Hackers rate limited." }
+  ],
+  "approvalNote": "Indie Hackers does NOT have a moderation queue — posts go live immediately after submission. The 'Milestones' channel is the closest analogue to a directory submission for product launches; pick it from the channel selector after the title. Self-promo is allowed; spammy promo gets downvoted.",
+  "recordedAt": "2026-05-07T00:00:00.000Z"
+}

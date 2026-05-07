@@ -7,6 +7,8 @@ import { generateAccountChecklist } from '../checklist/generate.js';
 import { generateAllContent } from '../content/generate.js';
 import { injectSeo } from '../seo/inject.js';
 import { openStatusDB } from '../status/db.js';
+import { setupDns } from '../dns/setup.js';
+import { recordFixture } from '../submissions/fixture-recorder.js';
 import type { ProductSpec, Result } from '../types.js';
 
 /**
@@ -86,8 +88,39 @@ async function main() {
     const specPath = expectSpecPath();
     const spec = unwrap(await parseSpecFile(specPath), 'content generate');
     const out = flag('out', defaultOut(specPath, spec))!;
-    const pieces = unwrap(generateAllContent(spec, out), 'content generate');
+    const samples = flag('samples');
+    const pieces = unwrap(
+      generateAllContent(spec, out, samples ? { samplesDir: samples } : {}),
+      'content generate',
+    );
     console.log(`✓ Content → ${pieces.length} pieces in ${out}/content/`);
+    if (samples) console.log(`  voice profile inferred from: ${samples}`);
+    return;
+  }
+
+  if (cmd === 'domain' && sub === 'setup') {
+    const specPath = expectSpecPath();
+    const spec = unwrap(await parseSpecFile(specPath), 'domain setup');
+    const out = flag('out', defaultOut(specPath, spec))!;
+    const dryRun = rest.includes('--dry-run');
+    const result = unwrap(await setupDns(spec, { outDir: out, dryRun }), 'domain setup');
+    console.log(`✓ DNS plan for ${result.domain} (zone ${result.zoneId.slice(0, 8)}…)`);
+    console.log(`  desired:        ${result.desired.length}`);
+    console.log(`  already present: ${result.alreadyPresent.length}`);
+    console.log(`  to create:      ${result.toCreate.length}`);
+    console.log(`  created:        ${result.created.length}${dryRun ? ' (dry-run)' : ''}`);
+    console.log(`  report:         ${result.reportPath}`);
+    return;
+  }
+
+  if (cmd === 'fixtures' && sub === 'record') {
+    const [directory, url] = positional();
+    if (!directory || !url) fail('Usage: launchkit fixtures record <directory-slug> <submit-url>');
+    const out = flag('out', resolve('tests/playwright/fixtures'))!;
+    const result = unwrap(await recordFixture({ directory: directory!, url: url!, outDir: out }), 'fixtures record');
+    console.log(`✓ Fixture for ${directory} → ${result.fixturePath}`);
+    console.log(`  fields:    ${result.fixture.formFields.length}`);
+    console.log(`  submit:    ${result.fixture.submitSelector}`);
     return;
   }
 
@@ -140,8 +173,12 @@ async function main() {
     const checklist = unwrap(generateAccountChecklist(spec, out), 'e2e: checklist');
     console.log(`  ✓ account-checklist.md → ${checklist}`);
 
-    const content = unwrap(generateAllContent(spec, out), 'e2e: content');
-    console.log(`  ✓ ${content.length} content pieces in ${out}/content/`);
+    const samples = flag('samples');
+    const content = unwrap(
+      generateAllContent(spec, out, samples ? { samplesDir: samples } : {}),
+      'e2e: content',
+    );
+    console.log(`  ✓ ${content.length} content pieces in ${out}/content/${samples ? ` (voice from ${samples})` : ''}`);
 
     // Status DB tracking — record what the deterministic skills produced.
     const db = openStatusDB(resolve(out, 'status.db'));
@@ -188,9 +225,11 @@ function printUsage(): void {
 usage:
   launchkit spec validate <spec.json>
   launchkit brand generate <spec.json> [--out=<dir>]
-  launchkit checklist generate <spec.json> [--out=<dir>]
-  launchkit content generate <spec.json> [--out=<dir>]
+  launchkit checklist generate <spec.json> [--out=<dir>] [--samples=<dir>]
+  launchkit content generate <spec.json> [--out=<dir>] [--samples=<dir>]
   launchkit seo inject <spec.json> --project=<dir>
+  launchkit domain setup <spec.json> [--out=<dir>] [--dry-run]
+  launchkit fixtures record <directory-slug> <submit-url>
   launchkit status <projectDir>
   launchkit e2e <spec.json>
 

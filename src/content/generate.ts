@@ -3,6 +3,7 @@ import { resolve, dirname } from 'node:path';
 import type { ProductSpec, Result } from '../types.js';
 import { err, ok } from '../types.js';
 import { assertNoBanned } from './banned-words.js';
+import { analyzeSamplesDir, applyVoice, type VoiceProfile } from './tone-analyzer.js';
 
 export interface GeneratedContent {
   filename: string;
@@ -11,15 +12,30 @@ export interface GeneratedContent {
   metric: { unit: 'chars' | 'words'; value: number; limit?: number };
 }
 
+export interface GenerateContentOptions {
+  /** Path to a directory of sample writing (.md/.txt) used to match the user's voice. */
+  samplesDir?: string;
+}
+
 /**
  * Generate every piece of launch content for a spec. Each piece is written to
  * its own .md file under `outDir/content/`. The generator runs the banned-
  * words filter on every output and FAILS the run if any hit is found, so the
  * operator never ships AI slop.
+ *
+ * When `samplesDir` is provided, the generator analyses the corpus to derive
+ * a voice profile (contractions, emoji density, sentence length, semicolons)
+ * and applies it to every draft before writing.
  */
-export function generateAllContent(spec: ProductSpec, outDir: string): Result<GeneratedContent[]> {
+export function generateAllContent(
+  spec: ProductSpec,
+  outDir: string,
+  opts: GenerateContentOptions = {},
+): Result<GeneratedContent[]> {
   const dir = resolve(outDir, 'content');
   mkdirSync(dir, { recursive: true });
+
+  const voice = analyzeSamplesDir(opts.samplesDir);
 
   const pieces: GeneratedContent[] = [];
 
@@ -35,6 +51,8 @@ export function generateAllContent(spec: ProductSpec, outDir: string): Result<Ge
   }
 
   for (const piece of pieces) {
+    piece.body = applyVoice(piece.body, voice);
+    piece.metric = recountMetric(piece);
     try {
       assertNoBanned(piece.body, piece.filename);
     } catch (cause) {
@@ -52,6 +70,17 @@ export function generateAllContent(spec: ProductSpec, outDir: string): Result<Ge
 
   return ok(pieces);
 }
+
+function recountMetric(piece: GeneratedContent): GeneratedContent['metric'] {
+  if (piece.metric.unit === 'words') {
+    return { ...piece.metric, value: piece.body.split(/\s+/).length };
+  }
+  return { ...piece.metric, value: piece.body.length };
+}
+
+/** Re-export so the CLI can show the operator what voice it inferred. */
+export { analyzeSamplesDir };
+export type { VoiceProfile };
 
 // ─── Subreddit selector ─────────────────────────────────────────────────────
 

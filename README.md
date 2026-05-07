@@ -202,11 +202,15 @@ if (!r.ok) {
 - End-to-end test fixture in `examples/famshield/`.
 - MIT license, conventional commit history, GitHub Actions CI.
 
-### Deferred (clearly marked in the SKILL.md files)
+### Shipped in v1.1
 
-- **Per-directory Playwright recordings.** v1 ships the orchestration + 1 reference directory; the other 14 are stubs with selectors to fill in as you encounter each one live. Captcha frequency makes pre-recording brittle.
-- **Cloudflare-API DNS automation** (the SKILL.md is complete; the working code is queued for a follow-up commit since it requires an API-token integration test).
-- **Tone-matching with `--samples` directory.** The agent specs reference it; the implementation is a stub for v1.
+- **Cloudflare DNS automation** (`src/dns/`). Real API client + diff-and-add orchestrator. `launchkit domain setup <spec.json> [--dry-run]`. Token read from `process.env` or `.env*` files; existing records preserved.
+- **Playwright fixture recorder + 3 hand-curated fixtures** (`src/submissions/`, `tests/playwright/fixtures/`). `launchkit fixtures record <slug> <submit-url>` inspects the public submit page; BetaList, FoundrList, Indie Hackers ship as reference fixtures.
+- **`--samples` tone matching** (`src/content/tone-analyzer.ts`). Analyses a corpus of `.md`/`.txt` writing samples and applies the voice profile (contractions, emoji density, semicolons, sentence length, first-person dominance) to every generated draft. Falls back to a neutral indie-hacker voice when no samples directory is provided.
+
+### Still deferred
+
+- **Other 12 directory fixtures** are added on demand via `launchkit fixtures record <slug> <url>`. The orchestration handles them; only the per-site selector list needs hand-editing.
 
 ---
 
