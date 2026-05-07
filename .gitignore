@@ -1,0 +1,33 @@
+node_modules/
+dist/
+build/
+coverage/
+.turbo/
+.vite/
+.next/
+.cache/
+*.log
+.DS_Store
+
+# Local env
+.env
+.env.local
+.env.*.local
+
+# Generated artifacts (allow examples/famshield/* checked in as fixtures)
+status.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Playwright
+playwright-report/
+test-results/
+.playwright/
+trace/
+videos/
+
+# IDE
+.vscode/
+.idea/
+*.swp

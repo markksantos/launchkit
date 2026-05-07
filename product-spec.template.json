@@ -1,0 +1,180 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/markksantos/launchkit/product-spec.schema.json",
+  "title": "LaunchkitProductSpec",
+  "description": "Canonical product description used by every launchkit skill. Capture once, reuse everywhere.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "name",
+    "domain",
+    "tagline",
+    "descriptions",
+    "category",
+    "audience",
+    "useCase",
+    "founder",
+    "handle",
+    "github",
+    "brand",
+    "targetLaunchDate"
+  ],
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 40,
+      "description": "Brand name as displayed."
+    },
+    "domain": {
+      "type": "string",
+      "pattern": "^[a-z0-9.-]+\\.[a-z]{2,}$",
+      "description": "Apex domain, no protocol, no path."
+    },
+    "tagline": {
+      "type": "string",
+      "minLength": 5,
+      "maxLength": 80,
+      "description": "5–10 words, headline-style. Capped at 80 chars to fit Product Hunt and X bio."
+    },
+    "descriptions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fifty", "hundred", "twoHundred"],
+      "properties": {
+        "fifty": { "type": "string", "minLength": 50, "maxLength": 360 },
+        "hundred": { "type": "string", "minLength": 100, "maxLength": 720 },
+        "twoHundred": { "type": "string", "minLength": 200, "maxLength": 1500 }
+      }
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "saas",
+        "consumer",
+        "developer-tool",
+        "mobile-app",
+        "ai-tool",
+        "marketplace",
+        "browser-extension",
+        "open-source",
+        "other"
+      ]
+    },
+    "audience": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 200,
+      "description": "Primary audience in plain English."
+    },
+    "useCase": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 200,
+      "description": "Primary use case in plain English."
+    },
+    "founder": {
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "minLength": 2 },
+        "linkedin": { "type": "string", "format": "uri" },
+        "x": { "type": "string", "pattern": "^@?[A-Za-z0-9_]{1,15}$" },
+        "email": { "type": "string", "format": "email" }
+      }
+    },
+    "handle": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]{2,30}$",
+      "description": "Single canonical handle used across ALL platforms (no leading @)."
+    },
+    "github": {
+      "type": "object",
+      "required": ["org", "repo"],
+      "additionalProperties": false,
+      "properties": {
+        "org": { "type": "string", "pattern": "^[A-Za-z0-9-]{1,39}$" },
+        "repo": { "type": "string", "pattern": "^[A-Za-z0-9._-]{1,100}$" }
+      }
+    },
+    "brand": {
+      "type": "object",
+      "required": ["primaryHex", "accentHex"],
+      "additionalProperties": false,
+      "properties": {
+        "primaryHex": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
+        "accentHex": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
+        "logoPath": { "type": "string" },
+        "screenshotPaths": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "support": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "email": { "type": "string", "format": "email" },
+        "url": { "type": "string", "format": "uri" }
+      }
+    },
+    "pricing": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "model": { "type": "string", "enum": ["one-time", "subscription", "freemium", "free", "usage-based"] },
+        "startingPriceUsd": { "type": "number", "minimum": 0 },
+        "freeTrial": { "type": "boolean" }
+      }
+    },
+    "hosting": {
+      "type": "string",
+      "description": "e.g. Netlify, Vercel, Cloudflare Pages."
+    },
+    "dnsProvider": {
+      "type": "string",
+      "description": "e.g. Cloudflare, Namecheap."
+    },
+    "targetLaunchDate": {
+      "type": "string",
+      "format": "date",
+      "description": "ISO YYYY-MM-DD."
+    },
+    "directories": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "betalist",
+          "foundrlist",
+          "microlaunch",
+          "theresanaiforthat",
+          "toolify",
+          "futurepedia",
+          "stackshare",
+          "alternativeto",
+          "saashub",
+          "indiehackers",
+          "f6s",
+          "launchingnext",
+          "startupbuffer",
+          "betapage",
+          "peerpush"
+        ]
+      },
+      "description": "Subset of directories to target. Defaults to all when omitted."
+    },
+    "subreddits": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^r\\/[A-Za-z0-9_]{2,30}$" },
+      "minItems": 1,
+      "description": "Up to 5 most relevant subreddits."
+    },
+    "competitors": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

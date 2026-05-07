@@ -1,0 +1,61 @@
+{
+  "name": "launchkit",
+  "version": "0.1.0",
+  "description": "Opinionated SaaS launch operator — Claude Code skill library that automates the operational 70% of launching a product.",
+  "license": "MIT",
+  "author": "Mark Santos",
+  "type": "module",
+  "engines": {
+    "node": "22.x"
+  },
+  "bin": {
+    "launchkit": "./dist/cli/launchkit.js"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "dev": "tsc -b --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc -b --noEmit",
+    "spec:validate": "tsx src/cli/launchkit.ts spec validate",
+    "brand:generate": "tsx src/cli/launchkit.ts brand generate",
+    "checklist:generate": "tsx src/cli/launchkit.ts checklist generate",
+    "content:generate": "tsx src/cli/launchkit.ts content generate",
+    "seo:inject": "tsx src/cli/launchkit.ts seo inject",
+    "status": "tsx src/cli/launchkit.ts status",
+    "famshield:e2e": "tsx src/cli/launchkit.ts e2e examples/famshield/product-spec.json"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "better-sqlite3": "^12.0.0",
+    "yaml": "^2.6.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^24.10.1",
+    "@playwright/test": "^1.56.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "vitest": "^2.1.8"
+  },
+  "files": [
+    "dist",
+    "skills",
+    "agents",
+    "product-spec.template.json",
+    "SKILL.md",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "claude-code",
+    "claude-skills",
+    "launch",
+    "saas",
+    "indie-hacker",
+    "product-launch",
+    "playwright",
+    "automation"
+  ]
+}
