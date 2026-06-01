@@ -9,7 +9,6 @@ interface ChecklistItem {
   url: string;
   why: string;
   pasteCopy: string;
-  pasteCopyChars: number;
   verification: 'sms' | 'email' | 'id' | 'none' | 'manual-review';
   approvalEta: string;
   notes?: string;
@@ -42,7 +41,6 @@ function buildItems(spec: ProductSpec): ChecklistItem[] {
     url: `https://www.linkedin.com/company/setup/new/`,
     why: 'Strongest entity-recognition signal for Google and AI knowledge graphs. Required for Organization schema sameAs.',
     pasteCopy: `${spec.name} — ${spec.descriptions.hundred}\n\nWebsite: ${home}\nVanity URL: linkedin.com/company/${handle}`,
-    pasteCopyChars: 0,
     verification: 'manual-review',
     approvalEta: 'a few hours after a personal account verifies the page',
     notes: `Set the vanity URL to /${handle}. Add ${spec.brand.primaryHex} as accent color.`,
@@ -53,7 +51,6 @@ function buildItems(spec: ProductSpec): ChecklistItem[] {
     url: 'https://www.crunchbase.com/add-new',
     why: 'Crunchbase is consumed by Wikidata and AI knowledge graphs. Real entity wiring.',
     pasteCopy: `${spec.name}\nWebsite: ${home}\nFounder: ${spec.founder.name}\nLocation: (your HQ)\nCategory: ${labelCategory(spec.category)}\nDescription: ${spec.descriptions.twoHundred}`,
-    pasteCopyChars: 0,
     verification: 'email',
     approvalEta: '1–7 days for moderation',
   });
@@ -63,7 +60,6 @@ function buildItems(spec: ProductSpec): ChecklistItem[] {
     url: 'https://business.google.com/create',
     why: 'Knowledge Panel eligibility, even for digital-only businesses can claim "Service Area Business" or "Online Business" type.',
     pasteCopy: `${spec.name}\n${taglinePeriod}\nWebsite: ${home}`,
-    pasteCopyChars: 0,
     verification: 'manual-review',
     approvalEta: '5–14 days for postcard verification (or instant for some categories)',
   });
@@ -75,7 +71,6 @@ function buildItems(spec: ProductSpec): ChecklistItem[] {
     url: 'https://twitter.com/i/flow/signup',
     why: 'Distribution; the primary launch surface for Show HN audience and indie founders.',
     pasteCopy: `Username: ${handle}\nName: ${spec.name}\nBio (160): ${trim(`${spec.tagline}. ${spec.descriptions.fifty}`, 160)}\nWebsite: ${home}`,
-    pasteCopyChars: 160,
     verification: 'sms',
     approvalEta: 'instant after SMS',
   });
@@ -85,7 +80,6 @@ function buildItems(spec: ProductSpec): ChecklistItem[] {
     url: 'https://www.instagram.com/accounts/emailsignup/',
     why: 'Visual platform; indexable by Google for brand-name SERP.',
     pasteCopy: `Username: ${handle}\nName: ${spec.name}\nBio (150): ${trim(`${spec.tagline}\n${spec.descriptions.fifty}`, 150)}\nWebsite: ${home}`,
-    pasteCopyChars: 150,
     verification: 'sms',
     approvalEta: 'instant after SMS',
   });
@@ -95,7 +89,6 @@ function buildItems(spec: ProductSpec): ChecklistItem[] {
     url: 'https://www.tiktok.com/signup',
     why: 'Visual + audience-discovery surface for parental / consumer products.',
     pasteCopy: `Username: ${handle}\nName: ${spec.name}\nBio (80): ${trim(spec.tagline, 80)}\nWebsite: ${home}`,
-    pasteCopyChars: 80,
     verification: 'sms',
     approvalEta: 'instant after SMS',
   });
@@ -105,7 +98,6 @@ function buildItems(spec: ProductSpec): ChecklistItem[] {
     url: 'https://www.threads.net',
     why: 'Auto-creates from Instagram. Confirm bio + link visibility.',
     pasteCopy: `Bio is inherited from Instagram; just verify it imported and the link is set to ${home}.`,
-    pasteCopyChars: 0,
     verification: 'none',
     approvalEta: 'instant',
   });
@@ -115,7 +107,6 @@ function buildItems(spec: ProductSpec): ChecklistItem[] {
     url: 'https://www.facebook.com/pages/create',
     why: 'Required for some ad platforms and for users who only Google "[brand] facebook".',
     pasteCopy: `Page name: ${spec.name}\nUsername: ${handle}\nCategory: ${labelCategory(spec.category)}\nShort description (255): ${trim(`${spec.tagline}. ${spec.descriptions.fifty}`, 255)}\nWebsite: ${home}`,
-    pasteCopyChars: 255,
     verification: 'manual-review',
     approvalEta: 'instant for the page; a few days for category verification',
   });
@@ -125,7 +116,6 @@ function buildItems(spec: ProductSpec): ChecklistItem[] {
     url: 'https://www.youtube.com/@youtube/about',
     why: 'Brand SERP, plus product-walkthrough hosting.',
     pasteCopy: `Handle: @${handle}\nDescription: ${trim(`${spec.descriptions.twoHundred}\n\n${home}`, 1000)}`,
-    pasteCopyChars: 1000,
     verification: 'email',
     approvalEta: 'instant',
   });
@@ -137,7 +127,6 @@ function buildItems(spec: ProductSpec): ChecklistItem[] {
     url: 'https://github.com/account/organizations/new',
     why: 'Code repo home; org-level profile shows up in GitHub search and brand SERP.',
     pasteCopy: `Org name: ${spec.github.org}\nDisplay name: ${spec.name}\nDescription (200): ${trim(spec.tagline, 200)}\nWebsite: ${home}`,
-    pasteCopyChars: 200,
     verification: 'email',
     approvalEta: 'instant',
   });
@@ -147,7 +136,6 @@ function buildItems(spec: ProductSpec): ChecklistItem[] {
     url: 'https://substack.com/signup',
     why: 'Email list / build-in-public channel. Reserves the namespace.',
     pasteCopy: `Publication name: ${spec.name}\nSubdomain: ${handle}\nDescription (280): ${trim(`${spec.tagline}. Notes from building ${spec.name}.`, 280)}`,
-    pasteCopyChars: 280,
     verification: 'email',
     approvalEta: 'instant',
   });
@@ -157,7 +145,6 @@ function buildItems(spec: ProductSpec): ChecklistItem[] {
     url: 'https://medium.com/m/signin',
     why: 'Old-school SEO juice + the easiest cross-post target for the launch blog post.',
     pasteCopy: `Username: ${handle}\nBio (160): ${trim(`${spec.tagline}. Building ${spec.name} → ${home}`, 160)}`,
-    pasteCopyChars: 160,
     verification: 'email',
     approvalEta: 'instant',
   });
@@ -167,7 +154,6 @@ function buildItems(spec: ProductSpec): ChecklistItem[] {
     url: 'https://www.reddit.com/register',
     why: 'Posting from a freshly-created brand account is shadowbanned everywhere; use a personal account, but reserve the brand handle.',
     pasteCopy: `Username: ${handle}\nAbout (200): ${trim(`${spec.tagline}. Building ${spec.name} — ${home}`, 200)}`,
-    pasteCopyChars: 200,
     verification: 'email',
     approvalEta: 'instant',
   });
@@ -177,7 +163,6 @@ function buildItems(spec: ProductSpec): ChecklistItem[] {
     url: 'https://www.producthunt.com/users/new',
     why: 'Required to launch on PH. Build maker reputation BEFORE you launch.',
     pasteCopy: `Use the founder's personal name and a personal photo, NOT the brand. The brand goes in the product page later.`,
-    pasteCopyChars: 0,
     verification: 'email',
     approvalEta: 'instant',
   });

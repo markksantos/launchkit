@@ -1,5 +1,5 @@
 import { writeFileSync, readFileSync, mkdirSync } from 'node:fs';
-import { resolve, dirname } from 'node:path';
+import { resolve } from 'node:path';
 import type { ProductSpec, Result } from '../types.js';
 import { err, ok } from '../types.js';
 
@@ -197,6 +197,3 @@ function renderManifest(spec: ProductSpec): string {
     2,
   );
 }
-
-// Suppress the unused-variable lint for the helper imported for future use.
-void dirname;

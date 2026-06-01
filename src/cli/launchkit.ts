@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-import { readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { parseSpecFile } from '../spec/parse.js';
 import { generateBrandIdentity } from '../brand/generate.js';
@@ -19,8 +18,10 @@ import type { ProductSpec, Result } from '../types.js';
  *   checklist generate <spec.json> [--out=...]
  *   content generate <spec.json> [--out=...]
  *   seo inject <spec.json> --project=<path>
+ *   domain setup <spec.json> [--dry-run]
+ *   fixtures record <slug> <submit-url>
  *   status <projectDir>
- *   e2e <spec.json>
+ *   e2e <spec.json> [--samples=<dir>] [--project=<website-dir>] [--apply-dns]
  */
 
 const args = process.argv.slice(2);
@@ -69,7 +70,7 @@ async function main() {
   if (cmd === 'brand' && sub === 'generate') {
     const specPath = expectSpecPath();
     const spec = unwrap(await parseSpecFile(specPath), 'brand generate');
-    const out = flag('out', defaultOut(specPath, spec))!;
+    const out = flag('out', defaultOut(specPath))!;
     const result = unwrap(generateBrandIdentity(spec, out), 'brand generate');
     console.log(`✓ Brand identity → ${result.markdownPath} (${result.plans.length} platforms)`);
     return;
@@ -78,7 +79,7 @@ async function main() {
   if (cmd === 'checklist' && sub === 'generate') {
     const specPath = expectSpecPath();
     const spec = unwrap(await parseSpecFile(specPath), 'checklist generate');
-    const out = flag('out', defaultOut(specPath, spec))!;
+    const out = flag('out', defaultOut(specPath))!;
     const path = unwrap(generateAccountChecklist(spec, out), 'checklist generate');
     console.log(`✓ Checklist → ${path}`);
     return;
@@ -87,7 +88,7 @@ async function main() {
   if (cmd === 'content' && sub === 'generate') {
     const specPath = expectSpecPath();
     const spec = unwrap(await parseSpecFile(specPath), 'content generate');
-    const out = flag('out', defaultOut(specPath, spec))!;
+    const out = flag('out', defaultOut(specPath))!;
     const samples = flag('samples');
     const pieces = unwrap(
       generateAllContent(spec, out, samples ? { samplesDir: samples } : {}),
@@ -101,7 +102,7 @@ async function main() {
   if (cmd === 'domain' && sub === 'setup') {
     const specPath = expectSpecPath();
     const spec = unwrap(await parseSpecFile(specPath), 'domain setup');
-    const out = flag('out', defaultOut(specPath, spec))!;
+    const out = flag('out', defaultOut(specPath))!;
     const dryRun = rest.includes('--dry-run');
     const result = unwrap(await setupDns(spec, { outDir: out, dryRun }), 'domain setup');
     console.log(`✓ DNS plan for ${result.domain} (zone ${result.zoneId.slice(0, 8)}…)`);
@@ -164,7 +165,7 @@ async function main() {
     const specPath = sub ?? positional()[0];
     if (!specPath) fail('Usage: launchkit e2e <spec.json>');
     const spec = unwrap(await parseSpecFile(specPath!, { strictCrossField: true }), 'e2e: spec validate');
-    const out = defaultOut(specPath!, spec);
+    const out = defaultOut(specPath!);
     console.log(`launchkit e2e → ${spec.name} (${out})\n`);
 
     const brand = unwrap(generateBrandIdentity(spec, out), 'e2e: brand');
@@ -188,6 +189,36 @@ async function main() {
     for (const piece of content) {
       db.recordContent({ filename: piece.filename, channel: channelFor(piece.filename), status: 'drafted', charsOrWords: piece.metric.value });
     }
+
+    // Optional: inject SEO into a target website repo when --project is given.
+    const project = flag('project');
+    if (project) {
+      const seo = injectSeo(spec, { projectRoot: project });
+      if (seo.ok) {
+        const inj = seo.value.injected;
+        db.recordSchemaCheck({ name: 'json-ld', status: inj.jsonLd ? 'passed' : 'partial', detail: inj.jsonLd ? 'injected' : 'already present' });
+        db.recordSchemaCheck({ name: 'open-graph', status: inj.openGraph ? 'passed' : 'partial', detail: inj.openGraph ? 'injected' : 'already present' });
+        db.recordSchemaCheck({ name: 'twitter-card', status: inj.twitter ? 'passed' : 'partial', detail: inj.twitter ? 'injected' : 'already present' });
+        db.recordSchemaCheck({ name: 'canonical', status: inj.canonical ? 'passed' : 'partial', detail: inj.canonical ? 'injected' : 'already present' });
+        console.log(`  ✓ SEO injected into ${seo.value.htmlPath} (+${seo.value.publicFiles.length} public files)`);
+      } else {
+        db.recordSchemaCheck({ name: 'seo-inject', status: 'failed', detail: seo.error.message });
+        console.log(`  ⚠ SEO injection skipped: ${seo.error.message}`);
+      }
+    }
+
+    // Optional: DNS plan when the zone is on Cloudflare and a token is available.
+    // Defaults to a non-mutating dry-run; pass --apply-dns to actually write records.
+    if (spec.dnsProvider === 'Cloudflare') {
+      const applyDns = rest.includes('--apply-dns');
+      const dns = await setupDns(spec, { outDir: out, dryRun: !applyDns });
+      if (dns.ok) {
+        console.log(`  ✓ DNS ${applyDns ? 'applied' : 'plan (dry-run)'} — ${dns.value.toCreate.length} to create, ${dns.value.alreadyPresent.length} present → ${dns.value.reportPath}`);
+      } else {
+        console.log(`  ⚠ DNS skipped: ${dns.error.message}`);
+      }
+    }
+
     db.close();
     console.log(`  ✓ status.db initialised`);
     console.log(`\nDone. Manual next steps live in ${out}/account-checklist.md.`);
@@ -198,10 +229,9 @@ async function main() {
   fail(`Unknown command: ${cmd} ${sub ?? ''}`);
 }
 
-function defaultOut(specPath: string, spec: ProductSpec): string {
-  const dir = dirname(resolve(specPath));
-  if (dir.endsWith(spec.name.toLowerCase())) return dir;
-  return dir;
+function defaultOut(specPath: string): string {
+  // Outputs land alongside the spec file by default.
+  return dirname(resolve(specPath));
 }
 
 function channelFor(filename: string): string {
@@ -231,13 +261,10 @@ usage:
   launchkit domain setup <spec.json> [--out=<dir>] [--dry-run]
   launchkit fixtures record <directory-slug> <submit-url>
   launchkit status <projectDir>
-  launchkit e2e <spec.json>
+  launchkit e2e <spec.json> [--samples=<dir>] [--project=<website-dir>] [--apply-dns]
 
 read SKILL.md and skills/ for the Claude Code skill specs.`);
 }
-
-// Avoid unused-variable lint for readFileSync that some sub-commands use indirectly.
-void readFileSync;
 
 main().catch((cause: unknown) => {
   console.error(`launchkit: unexpected error\n${cause instanceof Error ? cause.stack : String(cause)}`);

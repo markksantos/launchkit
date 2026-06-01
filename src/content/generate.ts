@@ -1,4 +1,4 @@
-import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { writeFileSync, mkdirSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import type { ProductSpec, Result } from '../types.js';
 import { err, ok } from '../types.js';
@@ -367,8 +367,4 @@ function shortenTaglineToFiveWords(tagline: string): string {
   const words = tagline.trim().split(/\s+/);
   if (words.length <= 5) return tagline;
   return words.slice(0, 5).join(' ');
-}
-
-export function existsFile(p: string): boolean {
-  return existsSync(p);
 }

@@ -61,16 +61,12 @@ export async function parseSpecFile(
 
   if (opts.strictCrossField) {
     const taglineWords = spec.tagline.trim().split(/\s+/).length;
-    if (taglineWords < 5 || taglineWords > 12) {
+    if (taglineWords < 5 || taglineWords > 10) {
       return err(
         'TAGLINE_LENGTH',
         `Tagline must be 5–10 words; got ${taglineWords}.`,
         'Headline-style, no period.',
       );
-    }
-    const expectedSupport = `support@${spec.domain}`;
-    if (spec.support?.email && spec.support.email !== expectedSupport) {
-      // Soft check — flag without failing.
     }
   }
 

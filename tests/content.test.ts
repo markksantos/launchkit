@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { mkdtempSync, readFileSync, existsSync, readdirSync } from 'node:fs';
+import { mkdtempSync, readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { generateAllContent } from '../src/content/generate.js';
@@ -90,8 +90,4 @@ describe('tweet thread length', () => {
       }
     }
   });
-});
-
-it('survives existsFile import', () => {
-  expect(existsSync(__filename)).toBe(true);
 });
