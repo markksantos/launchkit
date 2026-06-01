@@ -1,12 +1,23 @@
 {
   "name": "launchkit",
-  "version": "0.1.0",
+  "version": "1.1.0",
   "description": "Opinionated SaaS launch operator — Claude Code skill library that automates the operational 70% of launching a product.",
   "license": "MIT",
   "author": "Mark Santos",
   "type": "module",
   "engines": {
-    "node": "22.x"
+    "node": ">=22"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/markksantos/launchkit.git"
+  },
+  "homepage": "https://github.com/markksantos/launchkit#readme",
+  "bugs": {
+    "url": "https://github.com/markksantos/launchkit/issues"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "bin": {
     "launchkit": "./dist/cli/launchkit.js"
@@ -16,6 +27,7 @@
     "dev": "tsc -b --watch",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:e2e": "playwright test",
     "lint": "tsc -b --noEmit",
     "spec:validate": "tsx src/cli/launchkit.ts spec validate",
     "brand:generate": "tsx src/cli/launchkit.ts brand generate",
@@ -23,7 +35,8 @@
     "content:generate": "tsx src/cli/launchkit.ts content generate",
     "seo:inject": "tsx src/cli/launchkit.ts seo inject",
     "status": "tsx src/cli/launchkit.ts status",
-    "famshield:e2e": "tsx src/cli/launchkit.ts e2e examples/famshield/product-spec.json"
+    "famshield:e2e": "tsx src/cli/launchkit.ts e2e examples/famshield/product-spec.json",
+    "prepublishOnly": "tsc -b --noEmit && vitest run && tsc -b"
   },
   "dependencies": {
     "ajv": "^8.17.1",
