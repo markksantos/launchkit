@@ -98,7 +98,15 @@ pnpm tsx src/cli/launchkit.ts spec validate path/to/product-spec.json
 pnpm tsx src/cli/launchkit.ts e2e path/to/product-spec.json
 ```
 
-This generates brand identity, account checklist, all content pieces, and initialises `status.db`. Run individually if you only want one skill:
+This generates brand identity, account checklist, all content pieces, and initialises `status.db`. It also injects SEO into a target website repo (`--project=<dir>`) and produces a Cloudflare DNS plan (dry-run by default; pass `--apply-dns` to write) when the zone is on Cloudflare and a token is available:
+
+```bash
+pnpm tsx src/cli/launchkit.ts e2e path/to/product-spec.json \
+  --samples=path/to/writing-samples \
+  --project=/path/to/your/website-repo
+```
+
+Run individually if you only want one skill:
 
 ```bash
 pnpm brand:generate path/to/product-spec.json
@@ -149,20 +157,38 @@ launchkit/
 │   └── verification-runner.md
 ├── src/                          # working code (TypeScript)
 │   ├── types.ts
+│   ├── lib/env.ts                # process.env + .env reader (no mutation)
 │   ├── spec/parse.ts
 │   ├── brand/generate.ts
 │   ├── checklist/generate.ts
 │   ├── content/generate.ts
 │   ├── content/banned-words.ts
+│   ├── content/tone-analyzer.ts  # --samples voice matching
 │   ├── seo/inject.ts
+│   ├── dns/                      # Cloudflare DNS automation
+│   │   ├── cloudflare.ts         # API v4 client (fetch-based)
+│   │   ├── desired-records.ts    # hosting + email + CAA record plan
+│   │   ├── render.ts             # dns-status.md report
+│   │   └── setup.ts              # diff-and-add orchestrator
+│   ├── submissions/             # directory-submission fixtures
+│   │   ├── types.ts              # DirectoryFixture + JSON schema
+│   │   ├── fixture-recorder.ts   # inspect a public submit page
+│   │   └── fixture-validate.ts   # ajv validation of a fixture
 │   ├── status/db.ts
 │   └── cli/launchkit.ts
-├── tests/                        # vitest
+├── tests/                        # vitest unit tests
 │   ├── spec.test.ts
 │   ├── banned-words.test.ts
 │   ├── brand.test.ts
 │   ├── content.test.ts
-│   └── seo.test.ts
+│   ├── dns.test.ts
+│   ├── fixtures.test.ts
+│   ├── tone.test.ts
+│   ├── seo.test.ts
+│   └── playwright/               # Playwright fixture-contract tests
+│       ├── fixtures.spec.ts
+│       ├── helpers/mock-form.ts
+│       └── fixtures/*.json        # BetaList, FoundrList, Indie Hackers
 └── examples/famshield/           # the working end-to-end test fixture
 ```
 
@@ -198,9 +224,9 @@ if (!r.ok) {
 - Full skill specs (9 SKILL.md files) following Anthropic's Claude Code skill format.
 - 3 subagent specs.
 - TypeScript working code for: spec validation, brand-identity generation, account-checklist generation, content generation (with banned-words filter), SEO injector, status DB + CLI status command.
-- 30 vitest tests, all passing.
+- 70 vitest unit tests + 12 Playwright fixture-contract tests, all passing.
 - End-to-end test fixture in `examples/famshield/`.
-- MIT license, conventional commit history, GitHub Actions CI.
+- MIT license, conventional commit history, GitHub Actions CI + tag-driven npm release workflow.
 
 ### Shipped in v1.1
 
@@ -218,10 +244,21 @@ if (!r.ok) {
 
 ```bash
 pnpm install
-pnpm test                  # vitest, 30 tests
+pnpm test                  # vitest, 70 unit tests
+pnpm exec playwright install chromium  # one-time, for the e2e suite
+pnpm test:e2e              # Playwright fixture-contract tests, 12 tests
 pnpm lint                  # tsc --noEmit
 pnpm build                 # compile to dist/
 pnpm famshield:e2e         # end-to-end run against the FamShield fixture
+```
+
+### Releasing
+
+Publishing to npm is driven by a semver tag and the `release.yml` workflow:
+
+```bash
+npm version <patch|minor|major>   # bumps package.json + creates the tag
+git push --follow-tags            # CI builds, tests, and publishes (needs NPM_TOKEN secret)
 ```
 
 Pull requests welcome. Follow conventional commits (`feat:`, `fix:`, `docs:`, `chore:`).
